@@ -1,11 +1,11 @@
-use penumbra_proto::{penumbra::core::component::shielded_pool::v1 as pb, DomainType};
+use penumbra_proto::{penumbra::core::component::shielded_graph::v1 as pb, DomainType};
 use serde::{Deserialize, Serialize};
 
 mod allocation;
 
 pub use allocation::Allocation;
 
-use crate::params::ShieldedPoolParameters;
+use crate::params::ShieldedGraphParameters;
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(try_from = "pb::GenesisContent", into = "pb::GenesisContent")]
@@ -13,7 +13,7 @@ pub struct Content {
     /// The initial token allocations.
     pub allocations: Vec<Allocation>,
     /// The initial FMD parameters.
-    pub shielded_pool_params: ShieldedPoolParameters,
+    pub shielded_graph_params: ShieldedGraphParameters,
 }
 
 impl DomainType for Content {
@@ -24,7 +24,7 @@ impl From<Content> for pb::GenesisContent {
     fn from(value: Content) -> Self {
         pb::GenesisContent {
             allocations: value.allocations.into_iter().map(Into::into).collect(),
-            shielded_pool_params: Some(value.shielded_pool_params.into()),
+            shielded_graph_params: Some(value.shielded_graph_params.into()),
         }
     }
 }
@@ -39,9 +39,9 @@ impl TryFrom<pb::GenesisContent> for Content {
                 .into_iter()
                 .map(TryInto::try_into)
                 .collect::<Result<_, _>>()?,
-            shielded_pool_params: msg
-                .shielded_pool_params
-                .ok_or_else(|| anyhow::anyhow!("proto response missing shielded pool params"))?
+            shielded_graph_params: msg
+                .shielded_graph_params
+                .ok_or_else(|| anyhow::anyhow!("proto response missing shielded graph params"))?
                 .try_into()?,
         })
     }
@@ -50,7 +50,7 @@ impl TryFrom<pb::GenesisContent> for Content {
 impl Default for Content {
     fn default() -> Self {
         Self {
-            shielded_pool_params: ShieldedPoolParameters::default(),
+            shielded_graph_params: ShieldedGraphParameters::default(),
             allocations: vec![
                 Allocation {
                     raw_amount: 1000u128.into(),

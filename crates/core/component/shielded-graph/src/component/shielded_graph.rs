@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use super::fmd::ClueManagerInternal as _;
 use crate::fmd::should_update_fmd_params;
-use crate::params::ShieldedPoolParameters;
+use crate::params::ShieldedGraphParameters;
 use crate::{fmd, genesis, state_key};
 use anyhow::anyhow;
 use anyhow::Result;
@@ -17,20 +17,20 @@ use tracing::instrument;
 
 use super::{AssetRegistry, NoteManager};
 
-pub struct ShieldedPool {}
+pub struct ShieldedGraph {}
 
 #[async_trait]
-impl Component for ShieldedPool {
+impl Component for ShieldedGraph {
     type AppState = genesis::Content;
 
-    #[instrument(name = "shielded_pool", skip(state, app_state))]
+    #[instrument(name = "shielded_graph", skip(state, app_state))]
     async fn init_chain<S: StateWrite>(mut state: S, app_state: Option<&Self::AppState>) {
         match app_state {
             None => { /* Checkpoint -- no-op */ }
             Some(genesis) => {
                 // TODO(erwan): the handling of those parameters is a bit weird.
                 // rationalize it before merging
-                state.put_shielded_pool_params(genesis.shielded_pool_params.clone());
+                state.put_shielded_graph_params(genesis.shielded_graph_params.clone());
                 state.put_current_fmd_parameters(fmd::Parameters::default());
                 state.put_previous_fmd_parameters(fmd::Parameters::default());
 
@@ -57,14 +57,14 @@ impl Component for ShieldedPool {
         }
     }
 
-    #[instrument(name = "shielded_pool", skip(_state, _begin_block))]
+    #[instrument(name = "shielded_graph", skip(_state, _begin_block))]
     async fn begin_block<S: StateWrite + 'static>(
         _state: &mut Arc<S>,
         _begin_block: &abci::request::BeginBlock,
     ) {
     }
 
-    #[instrument(name = "shielded_pool", skip_all)]
+    #[instrument(name = "shielded_graph", skip_all)]
     async fn end_block<S: StateWrite + 'static>(
         state: &mut Arc<S>,
         end_block: &abci::request::EndBlock,
@@ -75,7 +75,7 @@ impl Component for ShieldedPool {
             .expect("height should not be negative");
         let state = Arc::get_mut(state).expect("the state should not be shared");
         let meta_params = state
-            .get_shielded_pool_params()
+            .get_shielded_graph_params()
             .await
             .expect("should be able to read state")
             .fmd_meta_params;
@@ -104,7 +104,7 @@ impl Component for ShieldedPool {
         Ok(())
     }
 }
-/// Extension trait providing read access to shielded pool data.
+/// Extension trait providing read access to shielded graph data.
 #[async_trait]
 pub trait StateReadExt: StateRead {
     async fn get_current_fmd_parameters(&self) -> Result<fmd::Parameters> {
@@ -120,10 +120,10 @@ pub trait StateReadExt: StateRead {
             .ok_or_else(|| anyhow!("Missing FmdParameters"))
     }
 
-    async fn get_shielded_pool_params(&self) -> Result<ShieldedPoolParameters> {
-        self.get(state_key::shielded_pool_params())
+    async fn get_shielded_graph_params(&self) -> Result<ShieldedGraphParameters> {
+        self.get(state_key::shielded_graph_params())
             .await?
-            .ok_or_else(|| anyhow!("Missing ShieldedPoolParameters"))
+            .ok_or_else(|| anyhow!("Missing ShieldedGraphParameters"))
     }
 
     async fn get_fmd_algorithm_state(&self) -> Result<fmd::MetaParametersAlgorithmState> {
@@ -136,11 +136,11 @@ pub trait StateReadExt: StateRead {
 
 impl<T: StateRead + ?Sized> StateReadExt for T {}
 
-/// Extension trait providing write access to shielded pool data.
+/// Extension trait providing write access to shielded graph data.
 #[async_trait]
 pub trait StateWriteExt: StateWrite + StateReadExt {
-    fn put_shielded_pool_params(&mut self, params: ShieldedPoolParameters) {
-        self.put(crate::state_key::shielded_pool_params().into(), params)
+    fn put_shielded_graph_params(&mut self, params: ShieldedGraphParameters) {
+        self.put(crate::state_key::shielded_graph_params().into(), params)
     }
 
     /// Writes the current FMD parameters to the JMT.

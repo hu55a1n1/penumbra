@@ -15,10 +15,10 @@ use crate::{Note, NotePayload, Rseed};
 /// Manages the addition of new notes to the chain state.
 #[async_trait]
 pub trait NoteManager: StateWrite {
-    /// Mint a new (public) note into the shielded pool.
+    /// Mint a new (public) note into the shielded graph.
     ///
-    /// Most notes in the shielded pool are created by client transactions.
-    /// This method allows the chain to inject new value into the shielded pool
+    /// Most notes in the shielded graph are created by client transactions.
+    /// This method allows the chain to inject new value into the shielded graph
     /// on its own.
     #[instrument(skip(self, value, address, source))]
     async fn mint_note(

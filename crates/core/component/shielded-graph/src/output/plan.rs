@@ -6,7 +6,7 @@ use penumbra_keys::{
     symmetric::WrappedMemoKey,
     Address, PayloadKey,
 };
-use penumbra_proto::{core::component::shielded_pool::v1 as pb, DomainType};
+use penumbra_proto::{core::component::shielded_graph::v1 as pb, DomainType};
 use rand_core::{CryptoRng, RngCore};
 use serde::{Deserialize, Serialize};
 

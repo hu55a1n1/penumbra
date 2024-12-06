@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use decaf377_fmd::Precision;
 use penumbra_proto::{
-    core::component::shielded_pool::v1::{self as pb},
+    core::component::shielded_graph::v1::{self as pb},
     DomainType,
 };
 use serde::{Deserialize, Serialize};

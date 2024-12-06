@@ -20,12 +20,12 @@ impl<T: StateRead + ?Sized> AssetRegistryRead for T {}
 
 #[async_trait]
 pub trait AssetRegistry: StateWrite {
-    /// Register a new asset present in the shielded pool.
+    /// Register a new asset present in the shielded graph.
     /// If the asset is already registered, this is a no-op.
     #[instrument(skip(self))]
     async fn register_denom(&mut self, denom: &Metadata) {
         let asset_id = denom.id();
-        tracing::debug!(?asset_id, "registering asset metadata in shielded pool");
+        tracing::debug!(?asset_id, "registering asset metadata in shielded graph");
 
         if self.denom_metadata_by_asset(&asset_id).await.is_none() {
             self.put(

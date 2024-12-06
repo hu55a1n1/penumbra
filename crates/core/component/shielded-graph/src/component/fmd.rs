@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use cnidarium::{StateRead, StateWrite};
 use decaf377_fmd::Clue;
 use penumbra_proto::{
-    core::component::shielded_pool::v1::{self as pb},
+    core::component::shielded_graph::v1::{self as pb},
     StateWriteProto,
 };
 use penumbra_txhash::TransactionId;

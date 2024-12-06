@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context};
 use penumbra_asset::Value;
 use penumbra_keys::Address;
-use penumbra_proto::{core::component::shielded_pool::v1 as pb, DomainType};
+use penumbra_proto::{core::component::shielded_graph::v1 as pb, DomainType};
 use penumbra_sct::Nullifier;
 use prost::Name as _;
 

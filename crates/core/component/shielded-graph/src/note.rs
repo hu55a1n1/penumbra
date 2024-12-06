@@ -11,7 +11,7 @@ use penumbra_keys::{
     symmetric::{OutgoingCipherKey, OvkWrappedKey, PayloadKey, PayloadKind},
     Address, AddressView,
 };
-use penumbra_proto::penumbra::core::component::shielded_pool::v1 as pb;
+use penumbra_proto::penumbra::core::component::shielded_graph::v1 as pb;
 use rand::{CryptoRng, Rng};
 use serde::{Deserialize, Serialize};
 use thiserror;
