@@ -141,6 +141,13 @@ pub mod penumbra {
                 }
             }
 
+            pub mod shielded_graph {
+                pub mod v1 {
+                    include!("gen/penumbra.core.component.shielded_graph.v1.rs");
+                    include!("gen/penumbra.core.component.shielded_graph.v1.serde.rs");
+                }
+            }
+
             pub mod shielded_pool {
                 pub mod v1 {
                     include!("gen/penumbra.core.component.shielded_pool.v1.rs");

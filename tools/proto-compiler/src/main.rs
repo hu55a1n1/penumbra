@@ -100,6 +100,7 @@ fn main() -> anyhow::Result<()> {
                 "../../proto/penumbra/penumbra/core/component/governance/v1/governance.proto",
                 "../../proto/penumbra/penumbra/core/component/ibc/v1/ibc.proto",
                 "../../proto/penumbra/penumbra/core/component/sct/v1/sct.proto",
+                "../../proto/penumbra/penumbra/core/component/shielded_graph/v1/shielded_graph.proto",
                 "../../proto/penumbra/penumbra/core/component/shielded_pool/v1/shielded_pool.proto",
                 "../../proto/penumbra/penumbra/core/component/stake/v1/stake.proto",
                 "../../proto/penumbra/penumbra/core/keys/v1/keys.proto",
