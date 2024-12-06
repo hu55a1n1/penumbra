@@ -26,6 +26,7 @@ members = [
   "crates/core/component/governance",
   "crates/core/component/ibc",
   "crates/core/component/sct",
+  "crates/core/component/shielded-graph",
   "crates/core/component/shielded-pool",
   "crates/core/component/stake",
   "crates/core/keys",
@@ -189,6 +190,7 @@ penumbra-proof-params            = { default-features = false, path = "crates/cr
 penumbra-proof-setup             = { path = "crates/crypto/proof-setup" }
 penumbra-proto                   = { default-features = false, path = "crates/proto" }
 penumbra-sct                     = { default-features = false, path = "crates/core/component/sct" }
+penumbra-shielded-graph          = { default-features = false, path = "crates/core/component/shielded-graph" }
 penumbra-shielded-pool           = { default-features = false, path = "crates/core/component/shielded-pool" }
 penumbra-stake                   = { default-features = false, path = "crates/core/component/stake" }
 penumbra-tct                     = { default-features = false, path = "crates/crypto/tct" }

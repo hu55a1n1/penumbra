@@ -5386,6 +5386,60 @@ dependencies = [
 ]
 
 [[package]]
+name = "penumbra-shielded-graph"
+version = "0.80.9"
+dependencies = [
+ "anyhow",
+ "ark-ff",
+ "ark-groth16",
+ "ark-r1cs-std",
+ "ark-relations",
+ "ark-serialize",
+ "ark-snark",
+ "async-stream",
+ "async-trait",
+ "base64 0.21.7",
+ "blake2b_simd 1.0.2",
+ "bytes",
+ "chacha20poly1305",
+ "cnidarium",
+ "cnidarium-component",
+ "decaf377",
+ "decaf377-fmd",
+ "decaf377-ka",
+ "decaf377-rdsa",
+ "futures",
+ "hex",
+ "ibc-proto",
+ "ibc-types",
+ "im",
+ "metrics 0.22.3",
+ "once_cell",
+ "penumbra-asset",
+ "penumbra-ibc",
+ "penumbra-keys",
+ "penumbra-num",
+ "penumbra-proof-params",
+ "penumbra-proto",
+ "penumbra-sct",
+ "penumbra-tct",
+ "penumbra-txhash",
+ "poseidon377",
+ "proptest",
+ "prost",
+ "rand",
+ "rand_core",
+ "regex",
+ "serde",
+ "serde_json",
+ "tap",
+ "tendermint",
+ "thiserror",
+ "tonic",
+ "tracing",
+]
+
+[[package]]
 name = "penumbra-shielded-pool"
 version = "0.80.9"
 dependencies = [
