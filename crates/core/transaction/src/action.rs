@@ -18,6 +18,8 @@ use serde::{Deserialize, Serialize};
 pub enum Action {
     Output(penumbra_shielded_pool::Output),
     Spend(penumbra_shielded_pool::Spend),
+    Output1(penumbra_shielded_graph::Output),
+    Spend1(penumbra_shielded_graph::Spend),
     ValidatorDefinition(penumbra_stake::validator::Definition),
     IbcRelay(penumbra_ibc::IbcRelay),
     Swap(penumbra_dex::swap::Swap),
@@ -52,6 +54,8 @@ impl EffectingData for Action {
         match self {
             Action::Output(output) => output.effect_hash(),
             Action::Spend(spend) => spend.effect_hash(),
+            Action::Output1(output) => output.effect_hash(),
+            Action::Spend1(spend) => spend.effect_hash(),
             Action::Delegate(delegate) => delegate.effect_hash(),
             Action::Undelegate(undelegate) => undelegate.effect_hash(),
             Action::UndelegateClaim(claim) => claim.effect_hash(),
@@ -86,6 +90,8 @@ impl Action {
         match self {
             Action::Output(_) => tracing::info_span!("Output", ?idx),
             Action::Spend(_) => tracing::info_span!("Spend", ?idx),
+            Action::Output1(_) => tracing::info_span!("Output1", ?idx),
+            Action::Spend1(_) => tracing::info_span!("Spend1", ?idx),
             Action::ValidatorDefinition(_) => {
                 tracing::info_span!("ValidatorDefinition", ?idx)
             }
@@ -135,6 +141,8 @@ impl Action {
             Action::Output(_) => 2,
             Action::Swap(_) => 3,
             Action::SwapClaim(_) => 4,
+            Action::Spend1(_) => 5,
+            Action::Output1(_) => 6,
             Action::ValidatorDefinition(_) => 16,
             Action::IbcRelay(_) => 17,
             Action::ProposalSubmit(_) => 18,
@@ -164,6 +172,8 @@ impl IsAction for Action {
         match self {
             Action::Output(output) => output.balance_commitment(),
             Action::Spend(spend) => spend.balance_commitment(),
+            Action::Output1(output) => output.balance_commitment(),
+            Action::Spend1(spend) => spend.balance_commitment(),
             Action::Delegate(delegate) => delegate.balance_commitment(),
             Action::Undelegate(undelegate) => undelegate.balance_commitment(),
             Action::UndelegateClaim(undelegate_claim) => undelegate_claim.balance_commitment(),
@@ -197,6 +207,8 @@ impl IsAction for Action {
             Action::SwapClaim(x) => x.view_from_perspective(txp),
             Action::Output(x) => x.view_from_perspective(txp),
             Action::Spend(x) => x.view_from_perspective(txp),
+            Action::Output1(x) => x.view_from_perspective(txp),
+            Action::Spend1(x) => x.view_from_perspective(txp),
             Action::Delegate(x) => x.view_from_perspective(txp),
             Action::Undelegate(x) => x.view_from_perspective(txp),
             Action::UndelegateClaim(x) => x.view_from_perspective(txp),
@@ -300,6 +312,8 @@ impl From<Action> for pb::Action {
             Action::ActionDutchAuctionWithdraw(inner) => pb::Action {
                 action: Some(pb::action::Action::ActionDutchAuctionWithdraw(inner.into())),
             },
+            Action::Output1(_) => todo!(),
+            Action::Spend1(_) => todo!(),
         }
     }
 }

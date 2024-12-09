@@ -5,6 +5,7 @@ use penumbra_community_pool::{CommunityPoolDeposit, CommunityPoolOutput, Communi
 use penumbra_dex::{PositionClose, PositionOpen, PositionWithdraw, Swap, SwapClaim};
 use penumbra_fee::Gas;
 use penumbra_ibc::IbcRelay;
+use penumbra_shielded_graph::{Output as Output1, Spend as Spend1};
 use penumbra_shielded_pool::{Ics20Withdrawal, Output, Spend};
 use penumbra_stake::{
     validator::Definition as ValidatorDefinition, Delegate, Undelegate, UndelegateClaim,
@@ -316,6 +317,8 @@ impl GasCost for ActionPlan {
             // and can call the `GasCost` impl on that.
             ActionPlan::Spend(_) => spend_gas_cost(),
             ActionPlan::Output(_) => output_gas_cost(),
+            ActionPlan::Spend1(_) => spend_gas_cost(),
+            ActionPlan::Output1(_) => output_gas_cost(),
             ActionPlan::UndelegateClaim(_) => undelegate_claim_gas_cost(),
             ActionPlan::Swap(_) => swap_gas_cost(),
             ActionPlan::SwapClaim(_) => swap_claim_gas_cost(),
@@ -348,6 +351,8 @@ impl GasCost for Action {
         match self {
             Action::Output(output) => output.gas_cost(),
             Action::Spend(spend) => spend.gas_cost(),
+            Action::Output1(output) => output.gas_cost(),
+            Action::Spend1(spend) => spend.gas_cost(),
             Action::Delegate(delegate) => delegate.gas_cost(),
             Action::Undelegate(undelegate) => undelegate.gas_cost(),
             Action::UndelegateClaim(undelegate_claim) => undelegate_claim.gas_cost(),
@@ -387,6 +392,18 @@ impl GasCost for Output {
 }
 
 impl GasCost for Spend {
+    fn gas_cost(&self) -> Gas {
+        spend_gas_cost()
+    }
+}
+
+impl GasCost for Output1 {
+    fn gas_cost(&self) -> Gas {
+        output_gas_cost()
+    }
+}
+
+impl GasCost for Spend1 {
     fn gas_cost(&self) -> Gas {
         spend_gas_cost()
     }

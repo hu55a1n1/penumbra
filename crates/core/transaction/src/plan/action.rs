@@ -27,6 +27,7 @@ use penumbra_ibc::IbcRelay;
 use penumbra_keys::{symmetric::PayloadKey, FullViewingKey};
 use penumbra_proto::{core::transaction::v1 as pb_t, DomainType};
 use penumbra_shielded_pool::{Ics20Withdrawal, OutputPlan, SpendPlan};
+use penumbra_shielded_graph::{OutputPlan as OutputPlan1, SpendPlan as SpendPlan1};
 use penumbra_stake::{Delegate, Undelegate, UndelegateClaimPlan};
 use serde::{Deserialize, Serialize};
 
@@ -43,6 +44,10 @@ pub enum ActionPlan {
     Spend(SpendPlan),
     /// Describes a proposed output.
     Output(OutputPlan),
+    /// Describes a proposed spend.
+    Spend1(SpendPlan1),
+    /// Describes a proposed output.
+    Output1(OutputPlan1),
     /// We don't need any extra information (yet) to understand delegations,
     /// because we don't yet use flow encryption.
     Delegate(Delegate),
@@ -125,6 +130,29 @@ impl ActionPlan {
                     memo_key.as_ref().unwrap_or(&dummy_payload_key),
                 ))
             }
+            Spend1(spend_plan) => {
+                let note_commitment = spend_plan.note.commit();
+                let auth_path = witness_data
+                    .state_commitment_proofs
+                    .get(&note_commitment)
+                    .context(format!("could not get proof for {note_commitment:?}"))?;
+
+                Action::Spend1(spend_plan.spend(
+                    fvk,
+                    [0; 64].into(),
+                    auth_path.clone(),
+                    // FIXME: why does this need the anchor? isn't that implied by the auth_path?
+                    // cf. delegator_vote
+                    witness_data.anchor,
+                ))
+            }
+            Output1(output_plan) => {
+                let dummy_payload_key: PayloadKey = [0u8; 32].into();
+                Action::Output1(output_plan.output(
+                    fvk.outgoing(),
+                    memo_key.as_ref().unwrap_or(&dummy_payload_key),
+                ))
+            }
             Swap(swap_plan) => Action::Swap(swap_plan.swap(fvk)),
             SwapClaim(swap_claim_plan) => {
                 let note_commitment = swap_claim_plan.swap_plaintext.swap_commitment();
@@ -175,6 +203,8 @@ impl ActionPlan {
             ActionPlan::Output(_) => 2,
             ActionPlan::Swap(_) => 3,
             ActionPlan::SwapClaim(_) => 4,
+            ActionPlan::Spend1(_) => 5,
+            ActionPlan::Output1(_) => 6,
             ActionPlan::ValidatorDefinition(_) => 16,
             ActionPlan::IbcAction(_) => 17,
             ActionPlan::ProposalSubmit(_) => 18,
@@ -204,6 +234,8 @@ impl ActionPlan {
         match self {
             Spend(spend) => spend.balance(),
             Output(output) => output.balance(),
+            Spend1(spend) => spend.balance(),
+            Output1(output) => output.balance(),
             Delegate(delegate) => delegate.balance(),
             Undelegate(undelegate) => undelegate.balance(),
             UndelegateClaim(undelegate_claim) => undelegate_claim.balance(),
@@ -235,6 +267,8 @@ impl ActionPlan {
         match self {
             Spend(spend) => spend.value_blinding,
             Output(output) => output.value_blinding,
+            Spend1(spend) => spend.value_blinding,
+            Output1(output) => output.value_blinding,
             Delegate(_) => Fr::zero(),
             Undelegate(_) => Fr::zero(),
             UndelegateClaim(undelegate_claim) => undelegate_claim.balance_blinding,
@@ -267,6 +301,8 @@ impl ActionPlan {
         match self {
             Spend(plan) => plan.spend_body(fvk).effect_hash(),
             Output(plan) => plan.output_body(fvk.outgoing(), memo_key).effect_hash(),
+            Spend1(plan) => plan.spend_body(fvk).effect_hash(),
+            Output1(plan) => plan.output_body(fvk.outgoing(), memo_key).effect_hash(),
             Delegate(plan) => plan.effect_hash(),
             Undelegate(plan) => plan.effect_hash(),
             UndelegateClaim(plan) => plan.undelegate_claim_body().effect_hash(),
@@ -304,6 +340,19 @@ impl From<SpendPlan> for ActionPlan {
 impl From<OutputPlan> for ActionPlan {
     fn from(inner: OutputPlan) -> ActionPlan {
         ActionPlan::Output(inner)
+    }
+}
+
+
+impl From<SpendPlan1> for ActionPlan {
+    fn from(inner: SpendPlan1) -> ActionPlan {
+        ActionPlan::Spend1(inner)
+    }
+}
+
+impl From<OutputPlan1> for ActionPlan {
+    fn from(inner: OutputPlan1) -> ActionPlan {
+        ActionPlan::Output1(inner)
     }
 }
 
@@ -452,6 +501,8 @@ impl From<ActionPlan> for pb_t::ActionPlan {
             ActionPlan::Spend(inner) => pb_t::ActionPlan {
                 action: Some(pb_t::action_plan::Action::Spend(inner.into())),
             },
+            ActionPlan::Output1(_inner) => todo!(),
+            ActionPlan::Spend1(_inner) => todo!(),
             ActionPlan::Delegate(inner) => pb_t::ActionPlan {
                 action: Some(pb_t::action_plan::Action::Delegate(inner.into())),
             },
@@ -617,6 +668,8 @@ impl TryFrom<pb_t::ActionPlan> for ActionPlan {
             pb_t::action_plan::Action::Ics20Withdrawal(inner) => {
                 Ok(ActionPlan::Ics20Withdrawal(inner.try_into()?))
             }
+            pb_t::action_plan::Action::Spend1(_) => todo!(),
+            pb_t::action_plan::Action::Output1(_) => todo!(),
         }
     }
 }

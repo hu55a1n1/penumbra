@@ -450,6 +450,12 @@ impl serde::Serialize for ActionPlan {
                 action_plan::Action::Output(v) => {
                     struct_ser.serialize_field("output", v)?;
                 }
+                action_plan::Action::Spend1(v) => {
+                    struct_ser.serialize_field("spend", v)?;
+                }
+                action_plan::Action::Output1(v) => {
+                    struct_ser.serialize_field("output", v)?;
+                }
                 action_plan::Action::Swap(v) => {
                     struct_ser.serialize_field("swap", v)?;
                 }

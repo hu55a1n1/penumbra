@@ -611,6 +611,10 @@ pub mod action_plan {
         Swap(super::super::super::component::dex::v1::SwapPlan),
         #[prost(message, tag = "4")]
         SwapClaim(super::super::super::component::dex::v1::SwapClaimPlan),
+        #[prost(message, tag = "5")]
+        Spend1(super::super::super::component::shielded_graph::v1::SpendPlan),
+        #[prost(message, tag = "6")]
+        Output1(super::super::super::component::shielded_graph::v1::OutputPlan),
         /// This is just a message relayed to the chain.
         #[prost(message, tag = "16")]
         ValidatorDefinition(

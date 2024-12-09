@@ -308,3 +308,105 @@ mod tests {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod test_shielded_graph_txs {
+    use std::ops::Deref;
+
+    use anyhow::Result;
+    use penumbra_asset::{Value, STAKING_TOKEN_ASSET_ID};
+    use penumbra_fee::Fee;
+    use penumbra_keys::test_keys;
+    use penumbra_shielded_graph::{Note, OutputPlan, SpendPlan};
+    use penumbra_tct as tct;
+    use penumbra_transaction::{
+        plan::{CluePlan, DetectionDataPlan, TransactionPlan},
+        TransactionParameters, WitnessData,
+    };
+    use rand_core::OsRng;
+
+    use crate::AppActionHandler;
+
+    #[tokio::test]
+    async fn check_stateless_succeeds_on_valid_spend() -> Result<()> {
+        // Generate two notes controlled by the test address.
+        let value = Value {
+            amount: 100u64.into(),
+            asset_id: *STAKING_TOKEN_ASSET_ID,
+        };
+        let note = Note::generate(&mut OsRng, &test_keys::ADDRESS_0, value);
+        let value2 = Value {
+            amount: 50u64.into(),
+            asset_id: *STAKING_TOKEN_ASSET_ID,
+        };
+        let note2 = Note::generate(&mut OsRng, &test_keys::ADDRESS_0, value2);
+
+        // Record that note in an SCT, where we can generate an auth path.
+        let mut sct = tct::Tree::new();
+        // Assume there's a bunch of stuff already in the SCT.
+        for _ in 0..5 {
+            let random_note = Note::generate(&mut OsRng, &test_keys::ADDRESS_0, value);
+            sct.insert(tct::Witness::Keep, random_note.commit())
+                .unwrap();
+        }
+        sct.insert(tct::Witness::Keep, note.commit()).unwrap();
+        sct.insert(tct::Witness::Keep, note2.commit()).unwrap();
+        // Do we want to seal the SCT block here?
+        let auth_path = sct.witness(note.commit()).unwrap();
+        let auth_path2 = sct.witness(note2.commit()).unwrap();
+
+        // Add a single spend and output to the transaction plan such that the
+        // transaction balances.
+        let plan = TransactionPlan {
+            transaction_parameters: TransactionParameters {
+                expiry_height: 0,
+                fee: Fee::default(),
+                chain_id: "".into(),
+            },
+            actions: vec![
+                SpendPlan::new(&mut OsRng, note, auth_path.position()).into(),
+                SpendPlan::new(&mut OsRng, note2, auth_path2.position()).into(),
+                OutputPlan::new(&mut OsRng, value, test_keys::ADDRESS_1.deref().clone()).into(),
+            ],
+            detection_data: Some(DetectionDataPlan {
+                clue_plans: vec![CluePlan::new(
+                    &mut OsRng,
+                    test_keys::ADDRESS_1.deref().clone(),
+                    1.try_into().unwrap(),
+                )],
+            }),
+            memo: None,
+        };
+
+        // Build the transaction.
+        let fvk = &test_keys::FULL_VIEWING_KEY;
+        let sk = &test_keys::SPEND_KEY;
+        let auth_data = plan.authorize(OsRng, sk)?;
+        let witness_data = WitnessData {
+            anchor: sct.root(),
+            state_commitment_proofs: plan
+                .spend_plans()
+                .map(|spend| {
+                    (
+                        spend.note.commit(),
+                        sct.witness(spend.note.commit()).unwrap(),
+                    )
+                })
+                .collect(),
+        };
+        let tx = plan
+            .build_concurrent(fvk, &witness_data, &auth_data)
+            .await
+            .expect("can build transaction");
+
+        let context = tx.context();
+
+        // On the verifier side, perform stateless verification.
+        for action in tx.transaction_body().actions {
+            let result = action.check_stateless(context.clone()).await;
+            assert!(result.is_ok())
+        }
+
+        Ok(())
+    }
+}

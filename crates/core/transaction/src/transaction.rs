@@ -261,6 +261,8 @@ impl Transaction {
                 Action::ActionDutchAuctionSchedule(_) => {}
                 Action::ActionDutchAuctionEnd(_) => {}
                 Action::ActionDutchAuctionWithdraw(_) => {}
+                Action::Output1(_) => {}
+                Action::Spend1(_) => {}
             }
         }
 

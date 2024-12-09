@@ -8,6 +8,7 @@ default = ["std", "parallel"]
 std = ["ark-ff/std", "ibc-types/std"]
 parallel = [
     "tokio",
+    "penumbra-shielded-graph/parallel",
     "penumbra-shielded-pool/parallel",
     "penumbra-auction/parallel",
     "penumbra-dex/parallel",
@@ -48,6 +49,7 @@ penumbra-num = {workspace = true, default-features = false}
 penumbra-proof-params = {workspace = true, default-features = true}
 penumbra-proto = {workspace = true, default-features = true}
 penumbra-sct = {workspace = true, default-features = false}
+penumbra-shielded-graph = {workspace = true, default-features = false}
 penumbra-shielded-pool = {workspace = true, default-features = false}
 penumbra-stake = {workspace = true, default-features = false}
 penumbra-tct = {workspace = true, default-features = true }

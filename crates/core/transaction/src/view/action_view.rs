@@ -28,6 +28,8 @@ pub enum ActionView {
     // Action types with encrypted contents
     Spend(SpendView),
     Output(OutputView),
+    Spend1(SpendView),
+    Output1(OutputView),
     Swap(SwapView),
     SwapClaim(SwapClaimView),
     DelegatorVote(DelegatorVoteView),
@@ -138,6 +140,8 @@ impl From<ActionView> for pbt::ActionView {
                 ActionView::ActionDutchAuctionWithdraw(x) => {
                     AV::ActionDutchAuctionWithdraw(x.into())
                 }
+                ActionView::Spend1(_) => todo!(),
+                ActionView::Output1(_) => todo!(),
             }),
         }
     }
@@ -174,6 +178,8 @@ impl From<ActionView> for Action {
             ActionView::ActionDutchAuctionWithdraw(x) => {
                 Action::ActionDutchAuctionWithdraw(x.into())
             }
+            ActionView::Spend1(_) => todo!(),
+            ActionView::Output1(_) => todo!(),
         }
     }
 }

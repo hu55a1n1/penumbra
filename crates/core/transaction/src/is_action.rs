@@ -19,6 +19,7 @@ use penumbra_governance::{
     ValidatorVote, VotingReceiptToken,
 };
 use penumbra_ibc::IbcRelay;
+use penumbra_shielded_graph::{Output as Output1, OutputView as OutputView1, Spend as Spend1, SpendView as SpendView1};
 use penumbra_shielded_pool::{Ics20Withdrawal, Note, Output, OutputView, Spend, SpendView};
 use penumbra_stake::{Delegate, Undelegate, UndelegateClaim};
 
@@ -166,6 +167,26 @@ impl IsAction for Spend {
         };
 
         ActionView::Spend(spend_view)
+    }
+}
+
+impl IsAction for Output1 {
+    fn balance_commitment(&self) -> balance::Commitment {
+        self.body.balance_commitment
+    }
+
+    fn view_from_perspective(&self, _txp: &TransactionPerspective) -> ActionView {
+       todo!()
+    }
+}
+
+impl IsAction for Spend1 {
+    fn balance_commitment(&self) -> balance::Commitment {
+        self.body.balance_commitment
+    }
+
+    fn view_from_perspective(&self, _txp: &TransactionPerspective) -> ActionView {
+        todo!()
     }
 }
 

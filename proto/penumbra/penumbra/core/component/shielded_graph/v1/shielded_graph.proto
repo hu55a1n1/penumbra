@@ -10,6 +10,8 @@ import "penumbra/crypto/decaf377_fmd/v1/decaf377_fmd.proto";
 import "penumbra/crypto/decaf377_rdsa/v1/decaf377_rdsa.proto";
 import "penumbra/crypto/tct/v1/tct.proto";
 
+// TODO: modify
+
 // Configuration data for the shielded graph component.
 message ShieldedGraphParameters {
   FmdParameters fixed_fmd_params = 1 [deprecated = true];

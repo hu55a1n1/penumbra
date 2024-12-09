@@ -82,7 +82,7 @@ impl AppActionHandler for ProposalSubmit {
 
                 for action in &parsed_transaction_plan.actions {
                     match action {
-                        Spend(_) | Output(_) | Swap(_) | SwapClaim(_) | DelegatorVote(_)
+                        Spend(_) | Output(_) | Spend1(_) | Output1(_) | Swap(_) | SwapClaim(_) | DelegatorVote(_)
                         | UndelegateClaim(_) => {
                             anyhow::bail!("invalid action in Community Pool spend proposal (would require proving)")
                         }
